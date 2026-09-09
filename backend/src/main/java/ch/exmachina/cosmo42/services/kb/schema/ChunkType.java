@@ -28,7 +28,7 @@ public enum ChunkType {
     @JsonCreator
     public static ChunkType fromLabel(String label) {
         for (var type : ChunkType.values()) {
-            if (type.label.equals(label)) {
+            if (type.label.equalsIgnoreCase(label)) {
                 return type;
             }
         }
