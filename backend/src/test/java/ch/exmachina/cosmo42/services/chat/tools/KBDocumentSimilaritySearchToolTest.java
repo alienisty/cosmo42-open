@@ -8,12 +8,10 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.assertj.core.api.recursive.comparison.RecursiveComparisonConfiguration;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -88,9 +86,9 @@ class KBDocumentSimilaritySearchToolTest {
         EmbeddingMocks.stubWithFixedVector(embeddingModel, Fixtures.zeroVector(1024));
         KBDocument doc1 = Fixtures.document("doc-uuid-1", "first.pdf");
         KBDocument doc2 = Fixtures.document("doc-uuid-2", "second.pdf");
-        KBDocumentChunk chunk1 = Fixtures.chunk(doc1, ChunkType.TEXT, "first content", new int[] { 1 },
+        KBDocumentChunk chunk1 = Fixtures.chunk(doc1, ChunkType.TEXT, "first content", new int[] { 0 },
             Fixtures.zeroVector(1024));
-        KBDocumentChunk chunk2 = Fixtures.chunk(doc2, ChunkType.TABLE, "second content", new int[] { 2, 3 },
+        KBDocumentChunk chunk2 = Fixtures.chunk(doc2, ChunkType.TABLE, "second content", new int[] { 1, 2 },
             Fixtures.zeroVector(1024));
         when(chunkRepository.findMostSimilarByCosine(any(), any(), any(Integer.class)))
             .thenReturn(List.of(chunk1, chunk2));

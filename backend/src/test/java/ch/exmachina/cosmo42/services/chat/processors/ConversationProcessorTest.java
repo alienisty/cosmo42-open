@@ -9,9 +9,7 @@ import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doCallRealMethod;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -54,7 +52,6 @@ import ch.exmachina.cosmo42.repositories.KBDocumentChunkRepository;
 import ch.exmachina.cosmo42.services.chat.ChatAttribute;
 import ch.exmachina.cosmo42.services.chat.ChatContext;
 import ch.exmachina.cosmo42.services.chat.tools.KBDocumentSimilaritySearchTool;
-import ch.exmachina.cosmo42.testsupport.ChatModelMocks;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Sinks;
 import reactor.test.StepVerifier;
@@ -180,8 +177,8 @@ class ConversationProcessorTest {
             chunk.setKbDocument(new KBDocument());
             chunk.getKbDocument().setUuid("uuid");
             chunk.getKbDocument().setFileName("test.pdf");
-            chunk.setStartPage(1);
-            chunk.setEndPage(3);
+            chunk.setStartPage(0);
+            chunk.setEndPage(2);
 
             var citation = CitationEntryDTO.builder()
                     .id(1).originalIndex(1).fileName("test.pdf").uuid("uuid").sourcePages(new int[] { 1, 2, 3 })

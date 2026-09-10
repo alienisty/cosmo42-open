@@ -1,8 +1,13 @@
-import styles from './SupTooltip.module.css';
+import React from 'react';
+import styles from './CitationTooltip.module.css';
 
-console.log(styles)
+type CitationTooltipProps = React.ComponentPropsWithoutRef<'sup'> & {
+  'data-filename'?: string,
+  'data-url'?: string,
+  'data-pages'?: string
+}
 
-export function SupTooltip(props) {
+export function CitationTooltip(props: CitationTooltipProps) {
   const filename = props['data-filename'] ?? '';
   const url   = props['data-url'] ?? '';
   const pages = (props['data-pages'] as string)?.split(',').map(s => s.trim()) ?? [];

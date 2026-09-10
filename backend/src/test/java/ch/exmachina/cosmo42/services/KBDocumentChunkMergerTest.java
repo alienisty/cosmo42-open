@@ -30,7 +30,7 @@ class KBDocumentChunkMergerTest {
 
     @Test
     void mergePages_singlePageNoCutoffs_passesThrough() {
-        DocumentPage page = pageWith(chunk("text", "hello", null, false));
+        DocumentPage page = pageWith(chunk("TEXT", "hello", null, false));
 
         var result = chunkMerger.mergePages(List.of(entry(1, page)));
 
@@ -40,10 +40,10 @@ class KBDocumentChunkMergerTest {
 
     @Test
     void mergePages_textCutoffMergesWithNextPageFirstChunk() {
-        DocumentPage page1 = pageWith(chunk("text", "begin", null, true));
+        DocumentPage page1 = pageWith(chunk("TEXT", "begin", null, true));
         DocumentPage page2 = pageWith(
-                chunk("text", "end", null, false),
-                chunk("text", "second", null, false));
+                chunk("TEXT", "end", null, false),
+                chunk("TEXT", "second", null, false));
 
         var result = chunkMerger.mergePages(List.of(entry(1, page1), entry(2, page2)));
 
@@ -62,8 +62,8 @@ class KBDocumentChunkMergerTest {
 
     @Test
     void mergePages_cutoffWithDifferentTypeOnNext_noMerge() {
-        DocumentPage page1 = pageWith(chunk("text", "para", null, true));
-        DocumentPage page2 = pageWith(chunk("table", "| a |", "summary", false));
+        DocumentPage page1 = pageWith(chunk("TEXT", "para", null, true));
+        DocumentPage page2 = pageWith(chunk("TABLE", "| a |", "summary", false));
 
         var result = chunkMerger.mergePages(List.of(entry(1, page1), entry(2, page2)));
 
@@ -84,9 +84,9 @@ class KBDocumentChunkMergerTest {
 
     @Test
     void mergePages_cutoffAcrossThreePages_mergesAll() {
-        DocumentPage page1 = pageWith(chunk("text", "a", null, true));
-        DocumentPage page2 = pageWith(chunk("text", "b", null, true));
-        DocumentPage page3 = pageWith(chunk("text", "c", null, false));
+        DocumentPage page1 = pageWith(chunk("TEXT", "a", null, true));
+        DocumentPage page2 = pageWith(chunk("TEXT", "b", null, true));
+        DocumentPage page3 = pageWith(chunk("TEXT", "c", null, false));
 
         var result = chunkMerger.mergePages(List.of(entry(1, page1), entry(2, page2), entry(3, page3)));
 
@@ -100,9 +100,9 @@ class KBDocumentChunkMergerTest {
     
     @Test
     void mergePages_cutoffNotMergedIfNonContiguosPages() {
-        DocumentPage page1 = pageWith(chunk("text", "a", null, true));
-        DocumentPage page2 = pageWith(chunk("text", "b", null, true));
-        DocumentPage page4 = pageWith(chunk("text", "c", null, false));
+        DocumentPage page1 = pageWith(chunk("TEXT", "a", null, true));
+        DocumentPage page2 = pageWith(chunk("TEXT", "b", null, true));
+        DocumentPage page4 = pageWith(chunk("TEXT", "c", null, false));
 
         var result = chunkMerger.mergePages(List.of(entry(1, page1), entry(2, page2), entry(4, page4)));
 
@@ -121,8 +121,8 @@ class KBDocumentChunkMergerTest {
 
     @Test
     void mergePages_tableCutoff_joinsSummaries() {
-        DocumentPage page1 = pageWith(chunk("table", "| row1 |", "first half", true));
-        DocumentPage page2 = pageWith(chunk("table", "| row2 |", "second half", false));
+        DocumentPage page1 = pageWith(chunk("TABLE", "| row1 |", "first half", true));
+        DocumentPage page2 = pageWith(chunk("TABLE", "| row2 |", "second half", false));
 
         var result = chunkMerger.mergePages(List.of(entry(1, page1), entry(2, page2)));
 
@@ -135,7 +135,7 @@ class KBDocumentChunkMergerTest {
 
     @Test
     void mergePages_nullOrEmptyPagesAreSkipped() {
-        DocumentPage page1 = pageWith(chunk("text", "x", null, false));
+        DocumentPage page1 = pageWith(chunk("TEXT", "x", null, false));
         DocumentPage nullChunks = new DocumentPage(null);
 
         var result = chunkMerger.mergePages(new ArrayList<>(List.of(entry(1, page1), entry(2, nullChunks))));
@@ -158,7 +158,7 @@ class KBDocumentChunkMergerTest {
     }
 
     private static Chunk chunk(String type, String content, String summary, boolean continues) {
-        return new Chunk(ChunkType.fromLabel(type), content, summary, continues);
+        return new Chunk(ChunkType.valueOf(type), content, summary, continues);
     }
 
     private static DocumentPage pageWith(Chunk... chunks) {

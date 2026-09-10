@@ -136,7 +136,7 @@ class KBDocumentChunkerTest {
     @Test
     void processPages_withTableChunk_passesTableThrough() {
         String tableJson = """
-                {"chunks":[{"type":"table","content":"| A | B |","summary":"Sales data","continuesOnNextPage":false}]}""";
+                {"chunks":[{"type":"TABLE","content":"| A | B |","summary":"Sales data","continuesOnNextPage":false}]}""";
         stubStreamResponse(tableJson);
         ConcurrentMap<Integer, DocumentPage> results = new ConcurrentHashMap<>();
 
@@ -167,6 +167,6 @@ class KBDocumentChunkerTest {
     }
 
     private static String pageJson(String content) {
-        return "{\"chunks\":[{\"type\":\"text\",\"content\":\"" + content + "\",\"continuesOnNextPage\":false}]}";
+        return "{\"chunks\":[{\"type\":\"TEXT\",\"content\":\"" + content + "\",\"continuesOnNextPage\":false}]}";
     }
 }

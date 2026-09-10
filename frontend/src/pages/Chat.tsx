@@ -9,7 +9,7 @@ import { defaultSchema } from 'hast-util-sanitize'
 import { fetchChatHistory, sendChatMessage } from '../api/client';
 import './Chat.css';
 import { ChatInput } from './ChatInput';
-import { SupTooltip} from './SupTooltip';
+import { CitationTooltip} from './CitationTooltip';
 
 
 // Allow any data-* attribute on <sup>. (sub/sup are already in the default tag allowlist.)
@@ -232,7 +232,7 @@ export function Chat() {
             const lastMessage = prev[prev.length - 1];
             // If we haven't created the AI message yet, create it with the status
             if (lastMessage?.role !== 'assistant') {
-              var data = event.data;
+              const data = event.data;
               setTimeout(() => addStatusToQueue(data), 0);
               return [...prev, { role: 'assistant', content: '' }];
             }
@@ -416,7 +416,7 @@ export function Chat() {
                       {msg.role === 'assistant' ? (
                         <ReactMarkdown 
                           rehypePlugins={[rehypeRaw, [rehypeSanitize, schema]]}
-                          components={{ sup: SupTooltip }}>
+                          components={{ sup: CitationTooltip }}>
                           {msg.content.replace(/__CITE_(\d+)__/g, (_, id) => citation(Number(id), msg.citations))}
                         </ReactMarkdown>
                       ) : (
