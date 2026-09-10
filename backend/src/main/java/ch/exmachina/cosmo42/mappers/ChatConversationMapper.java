@@ -36,7 +36,7 @@ public class ChatConversationMapper {
 
     public ChatMessageDTO toMessage(Message m) {
 		@SuppressWarnings("unchecked")
-		var citations = (List<CitationEntryDTO>)m.getMetadata().get(ChatAttribute.CITATIONS.name());
+		var citations = (List<CitationEntryDTO>)m.getMetadata().getOrDefault(ChatAttribute.CITATIONS.name(), List.of());
 		return new ChatMessageDTO(
                 m.getMessageType().getValue(),
                 m.getText(),

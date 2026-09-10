@@ -33,38 +33,37 @@ public class ConversationProcessor implements ChatProcessor {
     KBDocumentSimilaritySearchTool kbDocumentSimilaritySearchTool;
 
     private static final String system_instruction = """
-		You are cosmo42, an expert in retrieving information from a private knowledge base.
-		You are integrated into a system where users upload a variety of files; you have access to a visual LLM and a semantic search engine that allow you to find the requested information and indicate the files from which it originates.
-		
-		SEARCH FLOW (RAG) - MANDATORY EXECUTION:
-		If the question falls within the ALLOWED DOMAIN (even in the case of historical events or general questions about the territory), you must NEVER answer from memory, but you MUST ALWAYS:
-		1. Extract the key concepts from the user's request (e.g., dates, places, events).
-		2. IMMEDIATELY call the tool at your disposal (e.g., `search_knowledge_base`) to search the knowledge base.
-		3. Analyze the context "chunks" returned by the tool.
-		
-		POST-SEARCH RESPONSE RULES:
-		- FACT-BASED ONLY: Build your response EXCLUSIVELY on the documents retrieved by the tool.\s
-		- NO INFORMATION FOUND: If, and ONLY IF, you have called the tool and it has returned nothing useful to answer, state: "I have not found specific information in the documents at my disposal regarding this request.". At this point, you may draw upon your prior knowledge to answer the user.
-		- TRANSPARENCY: Always specify which chunk your information comes from using the __CITE_{CHUNK_ID}__ convention (for example: __CITE_1__, __CITE_3__). CRUCIAL: NEVER INVENT A CHUNK_ID; solely and exclusively use the ID of the chunks indicated in the context provided to you.
-		- TONE AND STYLE: Maintain a professional, reassuring, and clear tone. Use bullet points to describe complex procedures or data.
-		""";
+                You are cosmo42, an expert in retrieving information from a private knowledge base.
+                You are integrated into a system where users upload a variety of files; you have access to a visual LLM and a semantic search engine that allow you to find the requested information and indicate the files from which it originates.
+
+                SEARCH FLOW (RAG) - MANDATORY EXECUTION:
+                If the question falls within the ALLOWED DOMAIN (even in the case of historical events or general questions about the territory), you must NEVER answer from memory, but you MUST ALWAYS:
+                1. Extract the key concepts from the user's request (e.g., dates, places, events).
+                2. IMMEDIATELY call the tool at your disposal (e.g., `search_knowledge_base`) to search the knowledge base.
+                3. Analyze the context "chunks" returned by the tool.
+
+                POST-SEARCH RESPONSE RULES:
+                - FACT-BASED ONLY: Build your response EXCLUSIVELY on the documents retrieved by the tool.\s
+                - NO INFORMATION FOUND: If, and ONLY IF, you have called the tool and it has returned nothing useful to answer, state: "I have not found specific information in the documents at my disposal regarding this request.". At this point, you may draw upon your prior knowledge to answer the user.
+                - TRANSPARENCY: Always specify which chunk your information comes from using the __CITE_{CHUNK_ID}__ convention (for example: __CITE_1__, __CITE_3__). CRUCIAL: NEVER INVENT A CHUNK_ID; solely and exclusively use the ID of the chunks indicated in the context provided to you.
+                - TONE AND STYLE: Maintain a professional, reassuring, and clear tone. Use bullet points to describe complex procedures or data.
+            """;
 
     @Override
-    public Flux<ServerSentEvent<ChatResponseDTO>> process(ChatContext context) { 
-    	
-    	ChatClient chatClient = ChatClient.builder(chatModel)
+    public Flux<ServerSentEvent<ChatResponseDTO>> process(ChatContext context) {
+        ChatClient chatClient = ChatClient.builder(chatModel)
                 .defaultOptions(chatModelOptionsBuilder)
                 .defaultSystem(system_instruction)
                 .defaultTools(kbDocumentSimilaritySearchTool)
                 .build();
 
-    	var citationCollector = new CitationCollector();
+        var citationCollector = new CitationCollector();
 
-    	// MessageChatMemoryAdvisor.adviseStream() persists the user message (in before)
+        // MessageChatMemoryAdvisor.adviseStream() persists the user message (in before)
         // and the aggregated assistant response (in after, via ChatClientMessageAggregator).
         // No explicit chatMemory.add() needed at the end of the stream.
         var chatMemoryAdvisor = new AnnotatedMessageChatMemoryAdvisor(chatMemory, citationCollector);
-        
+
         return chatClient.prompt()
                 .user(context.getRequest().message())
                 .advisors(chatMemoryAdvisor)
@@ -94,15 +93,15 @@ public class ConversationProcessor implements ChatProcessor {
                                     .build())
                             .build();
                     
-				}).doOnComplete(() -> {
-					
-					context.getEventSink().tryEmitNext(ServerSentEvent.<ChatResponseDTO>builder()
-						.data(ChatResponseDTO.builder()
-							.type(ChatEventType.CITATIONS)
-							.data(citationCollector.assemble())
-							.build()
-						).build());
-				});
+                }).doOnComplete(() -> {
+                    
+                    context.getEventSink().tryEmitNext(ServerSentEvent.<ChatResponseDTO>builder()
+                        .data(ChatResponseDTO.builder()
+                            .type(ChatEventType.CITATIONS)
+                            .data(citationCollector.assemble())
+                            .build()
+                        ).build());
+                });
     }
 
     private Map<String, Object> buildToolContext(ChatContext context, CitationCollector citationCollector) {

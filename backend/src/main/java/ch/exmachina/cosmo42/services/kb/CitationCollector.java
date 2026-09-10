@@ -10,11 +10,15 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.regex.Pattern;
 
+import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.chat.messages.AssistantMessage;
 
 import ch.exmachina.cosmo42.dto.CitationEntryDTO;
 import ch.exmachina.cosmo42.services.chat.tools.KBDocumentSimilaritySearchTool.ChunkDTO;
 
+/**
+ * Collects citations while streaming the response and storing a message in {@link ChatMemory}.
+ */
 public class CitationCollector {
 
     private static final Pattern PATTERN = Pattern.compile("__CITE_(\\d+)__");
@@ -28,20 +32,28 @@ public class CitationCollector {
     }
 
     public void collectCitations(String text) {
+        collectCitations(text, citations);
+    }
+
+    public List<CitationEntryDTO> assemble(AssistantMessage message) {
+        var citations = new TreeSet<Integer>();
+        collectCitations(message.getText(), citations);
+        return assemble(citations, chunks);
+    }
+
+    public List<CitationEntryDTO> assemble() {
+        return assemble(citations, chunks);
+    }
+
+    private static void collectCitations(String text, SortedSet<Integer> citations) {
         var matcher = PATTERN.matcher(text);
         while (matcher.find()) {
             citations.add(parseInt(matcher.group(1)));
         }
     }
 
-    public List<CitationEntryDTO> assemble(AssistantMessage message) {
-        var collector = new CitationCollector();
-        collector.collectChunks(chunks);
-        collector.collectCitations(message.getText());
-        return collector.assemble();
-    }
+    private static List<CitationEntryDTO> assemble(SortedSet<Integer> citations, List<ChunkDTO> chunks) {
 
-    public List<CitationEntryDTO> assemble() {
         var sortedChunks = chunks.stream().sorted(comparing(ChunkDTO::id)).toList().listIterator();
         var sortedCitations = citations.iterator();
         var result = new ArrayList<CitationEntryDTO>(citations.size());
