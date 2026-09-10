@@ -1,13 +1,13 @@
 import React from 'react';
-import styles from './CitationTooltip.module.css';
+import styles from './Citation.module.css';
 
-type CitationTooltipProps = React.ComponentPropsWithoutRef<'sup'> & {
+type CitationProps = React.ComponentPropsWithoutRef<'sup'> & {
   'data-filename'?: string,
   'data-url'?: string,
   'data-pages'?: string
 }
 
-export function CitationTooltip(props: CitationTooltipProps) {
+export function Citation(props: CitationProps) {
   const filename = props['data-filename'] ?? '';
   const url   = props['data-url'] ?? '';
   const pages = (props['data-pages'] as string)?.split(',').map(s => s.trim()) ?? [];

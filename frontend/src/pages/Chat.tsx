@@ -9,10 +9,10 @@ import { defaultSchema } from 'hast-util-sanitize'
 import { fetchChatHistory, sendChatMessage } from '../api/client';
 import './Chat.css';
 import { ChatInput } from './ChatInput';
-import { CitationTooltip} from './CitationTooltip';
+import { Citation} from './Citation';
 
 
-// Allow any data-* attribute on <sup>. (sub/sup are already in the default tag allowlist.)
+// Allow any data-* attribute on <sup> for rehypeSanitize
 const schema = {
   ...defaultSchema,
   attributes: {
@@ -416,7 +416,7 @@ export function Chat() {
                       {msg.role === 'assistant' ? (
                         <ReactMarkdown 
                           rehypePlugins={[rehypeRaw, [rehypeSanitize, schema]]}
-                          components={{ sup: CitationTooltip }}>
+                          components={{ sup: Citation }}>
                           {msg.content.replace(/__CITE_(\d+)__/g, (_, id) => citation(Number(id), msg.citations))}
                         </ReactMarkdown>
                       ) : (
